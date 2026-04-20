@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="detail-layout">
+    <article class="detail-card">
+        <p class="eyebrow">{{ opportunity.company }} - {{ opportunity.location }}</p>
+        <h1>{{ opportunity.title }}</h1>
+        <p class="status-pill">Status: {{ opportunity.status }}</p>
+        <p>{{ opportunity.description }}</p>
+    </article>
+
+    <aside class="form-card">
+        <div class="section-heading">
+            <h2>Apply now</h2>
+            <p>{{ opportunity.applications|length }} application(s) received.</p>
+        </div>
+        <form method="post" action="{{ url_for('web.delete_opportunity_view', opportunity_id=opportunity.id) }}">
+            <button class="danger-button" type="submit">Delete Opportunity</button>
+        </form>
+        <form method="post" action="{{ url_for('web.apply_to_opportunity', opportunity_id=opportunity.id) }}" class="app-form">
+            <label>Full name
+                <input type="text" name="applicant_name" placeholder="Alex Johnson">
+            </label>
+            <label>Email
+                <input type="email" name="email" placeholder="alex@example.com">
+            </label>
+            <label>Resume summary
+                <textarea name="resume_text" rows="4" placeholder="Highlight your experience and skills."></textarea>
+            </label>
+            <label>Cover letter
+                <textarea name="cover_letter" rows="5" placeholder="Explain why you are a strong fit."></textarea>
+            </label>
+            <button class="primary-button" type="submit">Submit Application</button>
+        </form>
+    </aside>
+</section>
+{% endblock %}
