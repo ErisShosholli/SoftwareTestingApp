@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-card">
+    <div>
+        <p class="eyebrow">Career Opportunity Management</p>
+        <h1>Track talent opportunities with a polished workflow.</h1>
+        <p class="hero-copy">Post openings, review applicants, and test every layer of the platform with confidence.</p>
+    </div>
+    <a class="primary-button" href="{{ url_for('web.create_opportunity_view') }}">Create Opportunity</a>
+</section>
+
+<section class="section-heading">
+    <h2>Open Opportunities</h2>
+    <p>{{ opportunities|length }} listing(s) currently available.</p>
+</section>
+
+<section class="card-grid">
+    {% for opportunity in opportunities %}
+        <article class="job-card">
+            <div class="job-meta">
+                <span>{{ opportunity.company }}</span>
+                <span>{{ opportunity.location }}</span>
+            </div>
+            <h3>{{ opportunity.title }}</h3>
+            <p>{{ opportunity.description }}</p>
+            <a class="secondary-link" href="{{ url_for('web.opportunity_detail', opportunity_id=opportunity.id) }}">View details</a>
+        </article>
+    {% else %}
+        <article class="empty-card">
+            <h3>No opportunities yet.</h3>
+            <p>Create the first opening to start collecting applications.</p>
+        </article>
+    {% endfor %}
+</section>
+{% endblock %}

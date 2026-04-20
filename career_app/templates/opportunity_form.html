@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="form-card">
+    <div class="section-heading">
+        <p class="eyebrow">New Posting</p>
+        <h2>Create a career opportunity</h2>
+    </div>
+
+    <form method="post" class="app-form">
+        <label>Title
+            <input type="text" name="title" placeholder="QA Automation Engineer">
+        </label>
+        <label>Company
+            <input type="text" name="company" placeholder="Northern Labs">
+        </label>
+        <label>Location
+            <input type="text" name="location" placeholder="Berlin, Germany">
+        </label>
+        <label>Description
+            <textarea name="description" rows="6" placeholder="Share responsibilities, stack, and expectations."></textarea>
+        </label>
+        <button class="primary-button" type="submit">Publish Opportunity</button>
+    </form>
+</section>
+{% endblock %}
