@@ -5,7 +5,9 @@
     <article class="detail-card">
         <p class="eyebrow">{{ opportunity.company }} - {{ opportunity.location }}</p>
         <h1>{{ opportunity.title }}</h1>
-        <p class="status-pill">Status: {{ opportunity.status }}</p>
+        <p class="status-pill">
+            {{ opportunity.employment_type }} - Status: {{ opportunity.status }}
+        </p>
         <p>{{ opportunity.description }}</p>
     </article>
 

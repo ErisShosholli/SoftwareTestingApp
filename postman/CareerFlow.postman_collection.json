@@ -1,0 +1,647 @@
+{
+  "info": {
+    "_postman_id": "73bdc8c3-77ae-453a-92d1-7858ce4279ed",
+    "name": "CareerFlow API System Tests",
+    "description": "End-to-end system tests for authentication, opportunity CRUD, application CRUD, protected methods, validation, and the modified employment_type field.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.environment.get('run_id')) {",
+          "  const runId = Date.now().toString();",
+          "  pm.environment.set('run_id', runId);",
+          "  pm.environment.set('recruiter_email', `recruiter.${runId}@example.com`);",
+          "  pm.environment.set('candidate_email', `candidate.${runId}@example.com`);",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Response time is under 2000 ms', function () {",
+          "  pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "pm.test('Response has a JSON content type', function () {",
+          "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Health check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Health endpoint returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Service is healthy', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Protected opportunity creation rejects anonymous user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\":\"Unauthorized Role\",\"company\":\"No Token Ltd\",\"location\":\"Remote\",\"description\":\"This must be rejected.\",\"employment_type\":\"Full-time\"}"
+        },
+        "url": "{{base_url}}/opportunities"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Anonymous mutation returns 401', () => pm.response.to.have.status(401));",
+              "pm.test('Authentication error is returned', () => pm.expect(pm.response.json().error).to.include('Authentication required'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Register recruiter",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\":\"Postman Recruiter\",\"email\":\"{{recruiter_email}}\",\"password\":\"RecruiterPass123\",\"role\":\"recruiter\"}"
+        },
+        "url": "{{base_url}}/auth/register"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Recruiter registration returns 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Recruiter role is returned', () => pm.expect(body.role).to.eql('recruiter'));",
+              "pm.test('Password is not exposed', () => pm.expect(body).not.to.have.property('password'));",
+              "pm.environment.set('recruiter_token', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Register candidate",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\":\"Postman Candidate\",\"email\":\"{{candidate_email}}\",\"password\":\"CandidatePass123\",\"role\":\"candidate\"}"
+        },
+        "url": "{{base_url}}/auth/register"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Candidate registration returns 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Candidate role is returned', () => pm.expect(body.role).to.eql('candidate'));",
+              "pm.environment.set('candidate_token', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Duplicate registration returns conflict",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\":\"Duplicate Candidate\",\"email\":\"{{candidate_email}}\",\"password\":\"CandidatePass123\",\"role\":\"candidate\"}"
+        },
+        "url": "{{base_url}}/auth/register"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Duplicate registration returns 409', () => pm.response.to.have.status(409));",
+              "pm.test('Conflict message is useful', () => pm.expect(pm.response.json().error).to.include('already exists'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Login recruiter",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{recruiter_email}}\",\"password\":\"RecruiterPass123\"}"
+        },
+        "url": "{{base_url}}/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Recruiter login returns 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Login returns token', () => pm.expect(body.token).to.be.a('string').and.not.empty);",
+              "pm.environment.set('recruiter_token', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Login candidate",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{candidate_email}}\",\"password\":\"CandidatePass123\"}"
+        },
+        "url": "{{base_url}}/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Candidate login returns 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.environment.set('candidate_token', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Read current user",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidate_token}}"
+          }
+        ],
+        "url": "{{base_url}}/users/me"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Current user returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Current candidate email matches', () => pm.expect(pm.response.json().email).to.eql(pm.environment.get('candidate_email')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Update current user",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidate_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\":\"Updated Postman Candidate\"}"
+        },
+        "url": "{{base_url}}/users/me"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('User update returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('User name is updated', () => pm.expect(pm.response.json().name).to.eql('Updated Postman Candidate'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Create opportunity",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiter_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\":\"Postman Quality Engineer\",\"company\":\"CareerFlow Labs\",\"location\":\"Budapest / Remote\",\"description\":\"Own API, integration, and system testing.\",\"employment_type\":\"Full-time\"}"
+        },
+        "url": "{{base_url}}/opportunities"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Opportunity creation returns 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Modified field is returned', () => pm.expect(body.employment_type).to.eql('Full-time'));",
+              "pm.test('New opportunity has no applications', () => pm.expect(body.application_count).to.eql(0));",
+              "pm.environment.set('opportunity_id', body.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 List opportunities",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/opportunities"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Opportunity list returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Created opportunity is listed', function () {",
+              "  const ids = pm.response.json().map(item => item.id);",
+              "  pm.expect(ids).to.include(Number(pm.environment.get('opportunity_id')));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Get opportunity",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/opportunities/{{opportunity_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Opportunity detail returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Opportunity title matches', () => pm.expect(pm.response.json().title).to.eql('Postman Quality Engineer'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Update opportunity and modified field",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiter_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"employment_type\":\"Contract\",\"location\":\"Fully Remote\"}"
+        },
+        "url": "{{base_url}}/opportunities/{{opportunity_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Opportunity update returns 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('employment_type is updated', () => pm.expect(body.employment_type).to.eql('Contract'));",
+              "pm.test('Location is updated', () => pm.expect(body.location).to.eql('Fully Remote'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 Submit application",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidate_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"applicant_name\":\"Updated Postman Candidate\",\"email\":\"{{candidate_email}}\",\"resume_text\":\"Python, pytest, SQL, and Postman experience.\",\"cover_letter\":\"I build reliable test suites across every layer.\"}"
+        },
+        "url": "{{base_url}}/opportunities/{{opportunity_id}}/apply"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Application submission returns 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Initial application status is submitted', () => pm.expect(body.status).to.eql('submitted'));",
+              "pm.test('Application references opportunity', () => pm.expect(body.opportunity_id).to.eql(Number(pm.environment.get('opportunity_id'))));",
+              "pm.environment.set('application_id', body.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 Duplicate application returns conflict",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidate_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"applicant_name\":\"Updated Postman Candidate\",\"email\":\"{{candidate_email}}\",\"resume_text\":\"Duplicate resume.\",\"cover_letter\":\"Duplicate application.\"}"
+        },
+        "url": "{{base_url}}/opportunities/{{opportunity_id}}/applications"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Duplicate application returns 409', () => pm.response.to.have.status(409));",
+              "pm.test('Duplicate message is useful', () => pm.expect(pm.response.json().error).to.include('already applied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 List all applications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiter_token}}"
+          }
+        ],
+        "url": "{{base_url}}/applications"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Application list returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Created application is listed', function () {",
+              "  const ids = pm.response.json().map(item => item.id);",
+              "  pm.expect(ids).to.include(Number(pm.environment.get('application_id')));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 List opportunity applications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiter_token}}"
+          }
+        ],
+        "url": "{{base_url}}/opportunities/{{opportunity_id}}/applications"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Opportunity applications return 200', () => pm.response.to.have.status(200));",
+              "pm.test('One application is attached', () => pm.expect(pm.response.json()).to.have.lengthOf(1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 Get application",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidate_token}}"
+          }
+        ],
+        "url": "{{base_url}}/applications/{{application_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Application detail returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Candidate email matches', () => pm.expect(pm.response.json().email).to.eql(pm.environment.get('candidate_email')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 Update application status",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiter_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"status\":\"accepted\"}"
+        },
+        "url": "{{base_url}}/applications/{{application_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Application update returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Application is accepted', () => pm.expect(pm.response.json().status).to.eql('accepted'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 Delete application",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiter_token}}"
+          }
+        ],
+        "url": "{{base_url}}/applications/{{application_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Application delete returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Delete confirmation is returned', () => pm.expect(pm.response.json().message).to.include('deleted'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 Delete opportunity",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{recruiter_token}}"
+          }
+        ],
+        "url": "{{base_url}}/opportunities/{{opportunity_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Opportunity delete returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Delete confirmation is returned', () => pm.expect(pm.response.json().message).to.include('deleted'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 Delete candidate account",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{candidate_token}}"
+          }
+        ],
+        "url": "{{base_url}}/users/me"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('User delete returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('User delete confirmation is returned', () => pm.expect(pm.response.json().message).to.include('deleted'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

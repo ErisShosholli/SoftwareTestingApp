@@ -23,6 +23,7 @@
                 <span>{{ opportunity.location }}</span>
             </div>
             <h3>{{ opportunity.title }}</h3>
+            <p class="status-pill">{{ opportunity.employment_type }}</p>
             <p>{{ opportunity.description }}</p>
             <a class="secondary-link" href="{{ url_for('web.opportunity_detail', opportunity_id=opportunity.id) }}">View details</a>
         </article>

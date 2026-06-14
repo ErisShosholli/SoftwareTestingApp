@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="CareerFlow API System Tests" tests="22" time="1.874">
+  <testsuite name="01 Health check" id="d3054cc7-1fba-4d4e-8bc6-c761f646ca27" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.020">
+    <testcase name="Response time is under 2000 ms" time="0.020" classname="01HealthCheck"/>
+    <testcase name="Response has a JSON content type" time="0.020" classname="01HealthCheck"/>
+    <testcase name="Health endpoint returns 200" time="0.020" classname="01HealthCheck"/>
+    <testcase name="Service is healthy" time="0.020" classname="01HealthCheck"/>
+  </testsuite>
+  <testsuite name="02 Protected opportunity creation rejects anonymous user" id="ce1fa780-4dac-4301-b741-978141682419" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.007">
+    <testcase name="Response time is under 2000 ms" time="0.007" classname="02ProtectedOpportunityCreationRejectsAnonymousUser"/>
+    <testcase name="Response has a JSON content type" time="0.007" classname="02ProtectedOpportunityCreationRejectsAnonymousUser"/>
+    <testcase name="Anonymous mutation returns 401" time="0.007" classname="02ProtectedOpportunityCreationRejectsAnonymousUser"/>
+    <testcase name="Authentication error is returned" time="0.007" classname="02ProtectedOpportunityCreationRejectsAnonymousUser"/>
+  </testsuite>
+  <testsuite name="03 Register recruiter" id="03e790ac-9fd7-483e-9f9f-f07de8479493" timestamp="2026-06-14T21:08:46.618Z" tests="5" failures="0" errors="0" time="0.357">
+    <testcase name="Response time is under 2000 ms" time="0.357" classname="03RegisterRecruiter"/>
+    <testcase name="Response has a JSON content type" time="0.357" classname="03RegisterRecruiter"/>
+    <testcase name="Recruiter registration returns 201" time="0.357" classname="03RegisterRecruiter"/>
+    <testcase name="Recruiter role is returned" time="0.357" classname="03RegisterRecruiter"/>
+    <testcase name="Password is not exposed" time="0.357" classname="03RegisterRecruiter"/>
+  </testsuite>
+  <testsuite name="04 Register candidate" id="a1fae385-04b4-4c64-9478-08001b1e5083" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.350">
+    <testcase name="Response time is under 2000 ms" time="0.350" classname="04RegisterCandidate"/>
+    <testcase name="Response has a JSON content type" time="0.350" classname="04RegisterCandidate"/>
+    <testcase name="Candidate registration returns 201" time="0.350" classname="04RegisterCandidate"/>
+    <testcase name="Candidate role is returned" time="0.350" classname="04RegisterCandidate"/>
+  </testsuite>
+  <testsuite name="05 Duplicate registration returns conflict" id="cbef4ec5-2303-4123-8f92-41540a45ea27" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.343">
+    <testcase name="Response time is under 2000 ms" time="0.343" classname="05DuplicateRegistrationReturnsConflict"/>
+    <testcase name="Response has a JSON content type" time="0.343" classname="05DuplicateRegistrationReturnsConflict"/>
+    <testcase name="Duplicate registration returns 409" time="0.343" classname="05DuplicateRegistrationReturnsConflict"/>
+    <testcase name="Conflict message is useful" time="0.343" classname="05DuplicateRegistrationReturnsConflict"/>
+  </testsuite>
+  <testsuite name="06 Login recruiter" id="fadf6cfc-c14f-4f6f-9da0-4095410f60f7" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.349">
+    <testcase name="Response time is under 2000 ms" time="0.349" classname="06LoginRecruiter"/>
+    <testcase name="Response has a JSON content type" time="0.349" classname="06LoginRecruiter"/>
+    <testcase name="Recruiter login returns 200" time="0.349" classname="06LoginRecruiter"/>
+    <testcase name="Login returns token" time="0.349" classname="06LoginRecruiter"/>
+  </testsuite>
+  <testsuite name="07 Login candidate" id="cc596272-66f0-4d3d-b75f-43b52496a3b9" timestamp="2026-06-14T21:08:46.618Z" tests="3" failures="0" errors="0" time="0.346">
+    <testcase name="Response time is under 2000 ms" time="0.346" classname="07LoginCandidate"/>
+    <testcase name="Response has a JSON content type" time="0.346" classname="07LoginCandidate"/>
+    <testcase name="Candidate login returns 200" time="0.346" classname="07LoginCandidate"/>
+  </testsuite>
+  <testsuite name="08 Read current user" id="7b8d4893-e371-4fb0-9182-237b57345468" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.003">
+    <testcase name="Response time is under 2000 ms" time="0.003" classname="08ReadCurrentUser"/>
+    <testcase name="Response has a JSON content type" time="0.003" classname="08ReadCurrentUser"/>
+    <testcase name="Current user returns 200" time="0.003" classname="08ReadCurrentUser"/>
+    <testcase name="Current candidate email matches" time="0.003" classname="08ReadCurrentUser"/>
+  </testsuite>
+  <testsuite name="09 Update current user" id="4055d70a-60d9-4c76-95c3-c24b6a12523c" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.010">
+    <testcase name="Response time is under 2000 ms" time="0.010" classname="09UpdateCurrentUser"/>
+    <testcase name="Response has a JSON content type" time="0.010" classname="09UpdateCurrentUser"/>
+    <testcase name="User update returns 200" time="0.010" classname="09UpdateCurrentUser"/>
+    <testcase name="User name is updated" time="0.010" classname="09UpdateCurrentUser"/>
+  </testsuite>
+  <testsuite name="10 Create opportunity" id="998321fd-f6b4-4d26-9bac-9ed1f19059ad" timestamp="2026-06-14T21:08:46.618Z" tests="5" failures="0" errors="0" time="0.012">
+    <testcase name="Response time is under 2000 ms" time="0.012" classname="10CreateOpportunity"/>
+    <testcase name="Response has a JSON content type" time="0.012" classname="10CreateOpportunity"/>
+    <testcase name="Opportunity creation returns 201" time="0.012" classname="10CreateOpportunity"/>
+    <testcase name="Modified field is returned" time="0.012" classname="10CreateOpportunity"/>
+    <testcase name="New opportunity has no applications" time="0.012" classname="10CreateOpportunity"/>
+  </testsuite>
+  <testsuite name="11 List opportunities" id="95d50b0c-8bc7-4673-af7a-b1b359c5e47c" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.004">
+    <testcase name="Response time is under 2000 ms" time="0.004" classname="11ListOpportunities"/>
+    <testcase name="Response has a JSON content type" time="0.004" classname="11ListOpportunities"/>
+    <testcase name="Opportunity list returns 200" time="0.004" classname="11ListOpportunities"/>
+    <testcase name="Created opportunity is listed" time="0.004" classname="11ListOpportunities"/>
+  </testsuite>
+  <testsuite name="12 Get opportunity" id="ef7e5903-5194-41e5-a7ac-9709ff949a84" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.004">
+    <testcase name="Response time is under 2000 ms" time="0.004" classname="12GetOpportunity"/>
+    <testcase name="Response has a JSON content type" time="0.004" classname="12GetOpportunity"/>
+    <testcase name="Opportunity detail returns 200" time="0.004" classname="12GetOpportunity"/>
+    <testcase name="Opportunity title matches" time="0.004" classname="12GetOpportunity"/>
+  </testsuite>
+  <testsuite name="13 Update opportunity and modified field" id="61bbe18c-8a1b-447d-a5c9-9e6ea901cdaa" timestamp="2026-06-14T21:08:46.618Z" tests="5" failures="0" errors="0" time="0.009">
+    <testcase name="Response time is under 2000 ms" time="0.009" classname="13UpdateOpportunityAndModifiedField"/>
+    <testcase name="Response has a JSON content type" time="0.009" classname="13UpdateOpportunityAndModifiedField"/>
+    <testcase name="Opportunity update returns 200" time="0.009" classname="13UpdateOpportunityAndModifiedField"/>
+    <testcase name="employment_type is updated" time="0.009" classname="13UpdateOpportunityAndModifiedField"/>
+    <testcase name="Location is updated" time="0.009" classname="13UpdateOpportunityAndModifiedField"/>
+  </testsuite>
+  <testsuite name="14 Submit application" id="13b81836-b3c9-44a2-ad3a-b3077dd8d5e4" timestamp="2026-06-14T21:08:46.618Z" tests="5" failures="0" errors="0" time="0.011">
+    <testcase name="Response time is under 2000 ms" time="0.011" classname="14SubmitApplication"/>
+    <testcase name="Response has a JSON content type" time="0.011" classname="14SubmitApplication"/>
+    <testcase name="Application submission returns 201" time="0.011" classname="14SubmitApplication"/>
+    <testcase name="Initial application status is submitted" time="0.011" classname="14SubmitApplication"/>
+    <testcase name="Application references opportunity" time="0.011" classname="14SubmitApplication"/>
+  </testsuite>
+  <testsuite name="15 Duplicate application returns conflict" id="20dae38f-6f65-4af4-bd5b-e40391f501a0" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.004">
+    <testcase name="Response time is under 2000 ms" time="0.004" classname="15DuplicateApplicationReturnsConflict"/>
+    <testcase name="Response has a JSON content type" time="0.004" classname="15DuplicateApplicationReturnsConflict"/>
+    <testcase name="Duplicate application returns 409" time="0.004" classname="15DuplicateApplicationReturnsConflict"/>
+    <testcase name="Duplicate message is useful" time="0.004" classname="15DuplicateApplicationReturnsConflict"/>
+  </testsuite>
+  <testsuite name="16 List all applications" id="29ccb4eb-fcb1-403b-a8ae-388dc737087a" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.004">
+    <testcase name="Response time is under 2000 ms" time="0.004" classname="16ListAllApplications"/>
+    <testcase name="Response has a JSON content type" time="0.004" classname="16ListAllApplications"/>
+    <testcase name="Application list returns 200" time="0.004" classname="16ListAllApplications"/>
+    <testcase name="Created application is listed" time="0.004" classname="16ListAllApplications"/>
+  </testsuite>
+  <testsuite name="17 List opportunity applications" id="5d831b5d-dd1d-4f08-89d6-4bd2be38fffc" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.004">
+    <testcase name="Response time is under 2000 ms" time="0.004" classname="17ListOpportunityApplications"/>
+    <testcase name="Response has a JSON content type" time="0.004" classname="17ListOpportunityApplications"/>
+    <testcase name="Opportunity applications return 200" time="0.004" classname="17ListOpportunityApplications"/>
+    <testcase name="One application is attached" time="0.004" classname="17ListOpportunityApplications"/>
+  </testsuite>
+  <testsuite name="18 Get application" id="4a3bb7dc-37a2-49db-810b-1cbbf0c39389" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.004">
+    <testcase name="Response time is under 2000 ms" time="0.004" classname="18GetApplication"/>
+    <testcase name="Response has a JSON content type" time="0.004" classname="18GetApplication"/>
+    <testcase name="Application detail returns 200" time="0.004" classname="18GetApplication"/>
+    <testcase name="Candidate email matches" time="0.004" classname="18GetApplication"/>
+  </testsuite>
+  <testsuite name="19 Update application status" id="b5899d6b-10bc-4854-a9e6-4460be78fb09" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.008">
+    <testcase name="Response time is under 2000 ms" time="0.008" classname="19UpdateApplicationStatus"/>
+    <testcase name="Response has a JSON content type" time="0.008" classname="19UpdateApplicationStatus"/>
+    <testcase name="Application update returns 200" time="0.008" classname="19UpdateApplicationStatus"/>
+    <testcase name="Application is accepted" time="0.008" classname="19UpdateApplicationStatus"/>
+  </testsuite>
+  <testsuite name="20 Delete application" id="931d71e1-614a-42ca-8c58-d88d6bddb3c3" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.009">
+    <testcase name="Response time is under 2000 ms" time="0.009" classname="20DeleteApplication"/>
+    <testcase name="Response has a JSON content type" time="0.009" classname="20DeleteApplication"/>
+    <testcase name="Application delete returns 200" time="0.009" classname="20DeleteApplication"/>
+    <testcase name="Delete confirmation is returned" time="0.009" classname="20DeleteApplication"/>
+  </testsuite>
+  <testsuite name="21 Delete opportunity" id="d993c490-0505-4392-b851-adf3d44029a4" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.008">
+    <testcase name="Response time is under 2000 ms" time="0.008" classname="21DeleteOpportunity"/>
+    <testcase name="Response has a JSON content type" time="0.008" classname="21DeleteOpportunity"/>
+    <testcase name="Opportunity delete returns 200" time="0.008" classname="21DeleteOpportunity"/>
+    <testcase name="Delete confirmation is returned" time="0.008" classname="21DeleteOpportunity"/>
+  </testsuite>
+  <testsuite name="22 Delete candidate account" id="b3074379-9181-4374-9754-491d7f83e628" timestamp="2026-06-14T21:08:46.618Z" tests="4" failures="0" errors="0" time="0.008">
+    <testcase name="Response time is under 2000 ms" time="0.008" classname="22DeleteCandidateAccount"/>
+    <testcase name="Response has a JSON content type" time="0.008" classname="22DeleteCandidateAccount"/>
+    <testcase name="User delete returns 200" time="0.008" classname="22DeleteCandidateAccount"/>
+    <testcase name="User delete confirmation is returned" time="0.008" classname="22DeleteCandidateAccount"/>
+  </testsuite>
+</testsuites>

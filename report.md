@@ -1,181 +1,105 @@
-# Software Testing Project Report
+# CareerFlow Assignment 2 Report
 
-## 1. Overview
+## Overview
 
-This project implements **CareerFlow**, a Python web application for managing career opportunities and job applications. The application was developed with testability as a core design goal. Business rules are placed in a service layer, persistence is handled through SQLAlchemy models, and both HTML and REST API interfaces are exposed for end users and external clients.
+CareerFlow extends the Assignment 1 career opportunity application with a
+larger REST API, authentication, model changes, database compatibility, and
+multi-level automated testing. The application uses Flask, SQLAlchemy,
+Flask-RESTful, SQLite, pytest, Postman, and Newman.
 
-## 2. Objectives Achieved
+## API and Model Extensions
 
-- Developed a web application for posting and applying to career opportunities
-- Implemented a REST API for key operations
-- Designed and executed unit, integration, system, and API tests
-- Used mocks and patches to isolate side effects during testing
-- Produced documentation describing the testing strategy and outcomes
+The original `Opportunity` and `Application` models remain the central domain
+entities. The following changes were implemented:
 
-## 3. Technology Choices
+- `User` stores name, normalized email, hashed password, role, API token, and
+  creation time.
+- `Opportunity.employment_type` is the required modified-model field.
+- `Application.status` supports `submitted`, `reviewing`, `accepted`, and
+  `rejected` workflow states.
+- The existing one-to-many relationship between opportunities and
+  applications uses cascade deletion.
+- Duplicate applications from the same email to the same opportunity are
+  rejected.
 
-### Application Stack
+The Flask-RESTful API provides registration/login, current-user CRUD,
+opportunity CRUD, application CRUD, per-opportunity application listing, and a
+health endpoint.
 
-- **Flask**: lightweight and appropriate for a small, testable course project
-- **Flask-SQLAlchemy**: simplifies persistence and supports isolated in-memory testing
-- **SQLite**: fast setup for local development and test environments
+## Authentication
 
-### Testing Stack
+Passwords are stored with Werkzeug password hashing. Registration and login
+return a random API token. Protected calls require:
 
-- **pytest**: concise syntax, fixtures, and strong plugin ecosystem
-- **pytest-cov**: coverage reporting for measuring test reach
-- **unittest.mock**: built-in mocking and patching support for isolating dependencies
+```text
+Authorization: Bearer <token>
+```
 
-These tools were selected because they reduce boilerplate, speed up feedback, and are widely used in Python testing practice.
+All opportunity and application `POST` operations after account creation, and
+all resource `PUT` and `DELETE` methods, require authentication. Invalid or
+missing tokens return HTTP `401`.
 
-## 4. Application Design
+## Database
 
-The application contains two main domain entities:
+SQLite is used for development and in-memory SQLite is used during pytest
+runs. `db.create_all()` executes during application creation, before the first
+request is served.
 
-- **Opportunity**: stores job title, company, location, description, status, and related applications
-- **Application**: stores applicant details and links each application to an opportunity
+For compatibility with the Assignment 1 database, startup schema inspection
+adds `Opportunity.employment_type` and `Application.status` when those columns
+are absent. New installations receive the complete schema immediately.
 
-The architecture is intentionally split into layers:
+## Testing Strategy
 
-- **Routes**: handle HTTP requests and HTML rendering
-- **API Blueprint**: returns JSON responses for REST consumers
-- **Services**: contains validation, creation logic, submission rules, and serialization
-- **Models**: define persistence structure
+### Unit Tests
 
-This separation improves maintainability and makes unit testing more effective.
+Unit tests cover:
 
-## 5. Test Plan
+- required-field, email, JSON, and choice validation
+- password hashing and token rotation
+- the new `employment_type` model field
+- opportunity/application relationships
+- service persistence and notification mocks
+- closed opportunities and duplicate applications
+- opportunity and application status updates
+- cascade deletion
 
-### Scope
+### Integration and API Tests
 
-The test plan covers:
+Integration tests verify web routes, SQLAlchemy persistence, model
+relationships, and the new UI/model field. API tests verify:
 
-- Unit testing of service and validation functions
-- Integration testing of route/database interaction
-- System testing of the complete user workflow
-- REST API testing for endpoint correctness and error handling
+- registration, login, duplicate users, and invalid credentials
+- authenticated user read/update/delete
+- authentication enforcement on protected methods
+- complete opportunity CRUD
+- complete application CRUD
+- validation, conflicts, status codes, and JSON response content
 
-### Strategy by Test Type
+### System Tests
 
-#### Unit Tests
+The pytest system journey registers recruiter and candidate users, creates a
+contract opportunity, submits an application, accepts it, and confirms the
+opportunity application count. A separate browser-style Flask client journey
+tests the HTML posting and application flow.
 
-Goal:
-Verify individual units of logic in isolation.
+The Postman collection executes the complete external workflow in order. It
+contains collection-wide response-time and JSON checks plus endpoint-specific
+status and data assertions.
 
-Covered areas:
+## Verified Results
 
-- Required field validation
-- Opportunity creation behavior
-- Application submission rules
-- Closed opportunity rejection
-- Notification side effect isolation using mocks
+- pytest: 39 tests passed
+- Python coverage: 94%
+- Newman/Postman: 22 requests passed
+- Postman assertions: 91 passed, 0 failed
+- Average local API response time during the recorded Newman run: 85 ms
 
-#### Integration Tests
+Evidence is stored in `screenshots/` and `tests/system/`.
 
-Goal:
-Ensure multiple components work correctly together.
+## Conclusion
 
-Covered areas:
-
-- Posting an opportunity through the web route and confirming database persistence
-- Submitting an application through the web route and confirming relational data storage
-- Returning validation feedback from form submissions
-
-#### System Tests
-
-Goal:
-Validate the full application behavior from the user perspective.
-
-Covered scenario:
-
-1. Recruiter creates a new opportunity
-2. Candidate views the homepage
-3. Candidate opens the detail page workflow
-4. Candidate submits an application successfully
-
-#### REST API Tests
-
-Goal:
-Confirm API reliability, data accuracy, and proper error handling.
-
-Covered endpoints:
-
-- `GET /api/opportunities`
-- `POST /api/opportunities`
-- `GET /api/opportunities/<id>`
-- `POST /api/opportunities/<id>/apply`
-
-Test assertions include:
-
-- Correct HTTP status codes
-- Proper JSON response structure
-- Application creation behavior
-- Validation error messages for malformed requests
-
-## 6. Mocks and Patches
-
-Mocks and patches were used to avoid coupling tests to external side effects.
-
-Examples:
-
-- A mock notifier verifies that opportunity creation triggers a notification call
-- A patch on `send_notification` demonstrates isolation of the default notification dependency
-
-This makes tests faster, more focused, and more reliable.
-
-## 7. Challenges and Solutions
-
-### Challenge 1: Keeping the application testable
-
-If business logic is written directly inside routes, unit testing becomes difficult.
-
-Solution:
-Validation and persistence rules were extracted into `services.py`, making them easy to test independently from the web framework.
-
-### Challenge 2: Testing realistic workflows without browser automation
-
-Full browser tools would add unnecessary complexity for this assignment.
-
-Solution:
-System-style tests were implemented with Flask's test client to simulate complete user journeys while keeping setup lightweight.
-
-### Challenge 3: Verifying side effects without creating real integrations
-
-Direct email or notification systems were unnecessary for the assignment.
-
-Solution:
-Mocks and patches were applied to verify behavior without requiring external services.
-
-## 8. Test Outcomes
-
-The test suite demonstrates that:
-
-- Core business rules behave as expected
-- Web routes integrate correctly with the database
-- End-to-end workflows succeed for the primary use case
-- API endpoints return correct responses and handle invalid data safely
-
-Because the application uses an in-memory SQLite database during tests, each test runs in a clean isolated environment, improving repeatability.
-
-## 9. UI Design
-
-The user interface uses a **Dracula theme** with:
-
-- dark layered backgrounds
-- magenta, purple, and cyan highlights
-- responsive card-based layout
-- visually distinct forms and success/error feedback
-
-The design goal was to keep the interface clean, modern, and readable while matching the assignment request.
-
-## 10. Conclusion
-
-This project satisfies the assignment requirements by delivering:
-
-- a functional Python career opportunity management web application
-- a REST API for essential operations
-- a complete multi-layered test suite
-- mock and patch usage
-- documentation of methods, tools, challenges, and outcomes
-
-The resulting project demonstrates both software development and testing practice in a structured, maintainable way.
+The project now satisfies the Assignment 2 requirements for Flask-RESTful
+resources, SQLite/SQLAlchemy persistence, protected mutations, a modified
+existing model, CRUD workflows, Postman system testing, and organized unit,
+integration, API, and system test suites.
